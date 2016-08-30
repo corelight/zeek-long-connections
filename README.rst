@@ -12,5 +12,5 @@ a separate log stream to avoid confusing the semantics of the normal
 Bro conn log which users can assume only contains "complete" 
 connections.
 
-The script will also generate a notice `LongConnection::found` when
-ever it discovers a long connection. 
+The script will also generate a `LongConnection::found` notice 
+whenever it discovers a long connection. 
