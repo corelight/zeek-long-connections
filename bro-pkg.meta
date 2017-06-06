@@ -1,3 +1,5 @@
 [package]
+description = Find and log long-lived connections into a "conn_long" log.
+tags = conn
 version = 1.0.0
 script_dir = scripts
