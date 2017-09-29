@@ -13,4 +13,12 @@ Bro conn log which users can assume only contains "complete"
 connections.
 
 The script will also generate a `LongConnection::found` notice 
-whenever it discovers a long connection. 
+whenever it discovers a long connection.
+
+Installation
+------------
+
+::
+
+	bro-pkg refresh
+	bro-pkg install bro/corelight/bro-long-connections
