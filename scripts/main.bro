@@ -40,9 +40,10 @@ export {
 	const special_cases: table[subnet] of Durations = {} &redef;
 }
 
-# The yield value on this is the current offset into the
-# Durations value.
-global tracking_conns: table[string] of count &default=0;
+redef record connection += {
+	## Offset of the currently watched connection duration by the long-connections script.
+	long_conn_offset: count &default=0;
+};
 
 event bro_init() &priority=5
 	{
@@ -65,9 +66,8 @@ function get_durations(c: connection): Durations
 function long_callback(c: connection, cnt: count): interval
 	{
 	local check_it = get_durations(c);
-	local offset = tracking_conns[c$uid];
 
-	if ( offset < |check_it| && c$duration >= check_it[offset] )
+	if ( c$long_conn_offset < |check_it| && c$duration >= check_it[c$long_conn_offset] )
 		{
 		Conn::set_conn_log_data_hack(c);
 		Log::write(LongConnection::LOG, c$conn);
@@ -79,18 +79,14 @@ function long_callback(c: connection, cnt: count): interval
 		        $sub=fmt("%.2f", c$duration),
 		        $conn=c]);
 		
-		++tracking_conns[c$uid];
-		# We're only bumping the local offset value
-		# here so we can use it below and don't need
-		# to do the hash table lookup again.
-		++offset;
+		++c$long_conn_offset;
 		}
 
 	# Keep watching if there are potentially more thresholds.
-	if ( offset < |check_it| )
-		return check_it[offset];
+	if ( c$long_conn_offset < |check_it| )
+		return check_it[c$long_conn_offset];
 	else
-		return 0secs;
+		return -1sec;
 	}
 
 event connection_established(c: connection)
