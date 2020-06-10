@@ -45,7 +45,7 @@ redef record connection += {
 	long_conn_offset: count &default=0;
 };
 
-event bro_init() &priority=5
+event zeek_init() &priority=5
 	{
 	Log::create_stream(LOG, [$columns=Conn::Info, $path="conn_long"]);
 	}
