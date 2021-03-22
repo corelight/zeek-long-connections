@@ -97,3 +97,12 @@ event connection_established(c: connection)
 		ConnPolling::watch(c, long_callback, 1, check[0]);
 		}
 	}
+
+event partial_connection(c: connection)
+	{
+	local check = get_durations(c);
+	if ( |check| > 0 )
+		{
+		ConnPolling::watch(c, long_callback, 1, check[0]);
+		}
+	}
