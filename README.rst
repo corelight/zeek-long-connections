@@ -21,4 +21,4 @@ Installation
 ::
 
 	zkg refresh
-	zkg install zeek/corelight/bro-long-connections
+	zkg install zeek/corelight/zeek-long-connections
