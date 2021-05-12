@@ -101,8 +101,12 @@ function long_callback(c: connection, cnt: count): interval
 
 	# Keep watching if there are potentially more thresholds.
 	if ( c$long_conn_offset < |check_it| )
-		return check_it[c$long_conn_offset];
+		# Set next polling duration to be the time remaining
+		# between the actual duration and the threshold duration.
+		return (check_it[c$long_conn_offset] - c$duration);
 	else
+		# Negative return value here signals to stop polling
+		# on this particular connection.
 		return -1sec;
 	}
 
