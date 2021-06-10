@@ -78,12 +78,15 @@ function long_callback(c: connection, cnt: count): interval
 		Conn::set_conn_log_data_hack(c);
 		Log::write(LongConnection::LOG, c$conn);
 
-		local message = fmt("%s -> %s:%s remained alive for longer than %s", 
-		                    c$id$orig_h, c$id$resp_h, c$id$resp_p, duration_to_mins_secs(c$duration));
-		NOTICE([$note=LongConnection::found,
-		        $msg=message,
-		        $sub=fmt("%.2f", c$duration),
-		        $conn=c]);
+		if ( do_notice )
+			{
+			local message = fmt("%s -> %s:%s remained alive for longer than %s", 
+								c$id$orig_h, c$id$resp_h, c$id$resp_p, duration_to_mins_secs(c$duration));
+			NOTICE([$note=LongConnection::found,
+					$msg=message,
+					$sub=fmt("%.2f", c$duration),
+					$conn=c]);
+			}
 		
 		# Only increment the duration offset if there are more offsets
 		# or we aren't repeating the last duration
