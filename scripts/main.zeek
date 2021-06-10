@@ -38,6 +38,12 @@ export {
 	## that you may want to watch for longer or shorter
 	## durations than the default.
 	option special_cases: table[subnet] of Durations = {};
+
+	## Should the last duration be repeated or should the tracking end.
+	option repeat_last_duration: bool = F;
+
+	## Should a NOTICE be raised
+	option do_notice: bool = T;
 }
 
 redef record connection += {
@@ -79,7 +85,10 @@ function long_callback(c: connection, cnt: count): interval
 		        $sub=fmt("%.2f", c$duration),
 		        $conn=c]);
 		
-		++c$long_conn_offset;
+		# Only increment the duration offset if there are more offsets
+		# or we aren't repeating the last duration
+		if (c$long_conn_offset < |check_it|-1 || !repeat_last_duration)
+			++c$long_conn_offset;
 		}
 
 	# Keep watching if there are potentially more thresholds.
