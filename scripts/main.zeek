@@ -89,16 +89,7 @@ function long_callback(c: connection, cnt: count): interval
 		return -1sec;
 	}
 
-event connection_established(c: connection)
-	{
-	local check = get_durations(c);
-	if ( |check| > 0 )
-		{
-		ConnPolling::watch(c, long_callback, 1, check[0]);
-		}
-	}
-
-event partial_connection(c: connection)
+event new_connection(c: connection)
 	{
 	local check = get_durations(c);
 	if ( |check| > 0 )
