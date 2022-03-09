@@ -38,6 +38,9 @@ export {
 	## that you may want to watch for longer or shorter
 	## durations than the default.
 	const special_cases: table[subnet] of Durations = {} &redef;
+
+	## Event for other scripts to use
+	global long_conn_found: event(c: connection);
 }
 
 redef record connection += {
@@ -78,6 +81,8 @@ function long_callback(c: connection, cnt: count): interval
 		        $msg=message,
 		        $sub=fmt("%.2f", c$duration),
 		        $conn=c]);
+
+		event long_conn_found(c);
 		
 		++c$long_conn_offset;
 		}
