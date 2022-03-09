@@ -82,7 +82,7 @@ function long_callback(c: connection, cnt: count): interval
 		        $sub=fmt("%.2f", c$duration),
 		        $conn=c]);
 
-		event long_conn_found(c);
+		event LongConnection::long_conn_found(c);
 		
 		++c$long_conn_offset;
 		}
