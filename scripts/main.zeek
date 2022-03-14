@@ -76,7 +76,7 @@ function long_callback(c: connection, cnt: count): interval
 	{
 	local check_it = get_durations(c);
 
-	if ( c$long_conn_offset < |check_it| && c$duration >= check_it[c$long_conn_offset] )
+	if ( c$duration >= check_it[c$long_conn_offset] )
 		{
 		Conn::set_conn_log_data_hack(c);
 		Log::write(LongConnection::LOG, c$conn);
@@ -92,18 +92,29 @@ function long_callback(c: connection, cnt: count): interval
 			}
 
 		event LongConnection::long_conn_found(c);
-		
-		# Only increment the duration offset if there are more offsets
-		# or we aren't repeating the last duration
-		if (c$long_conn_offset < |check_it|-1 || !repeat_last_duration)
-			++c$long_conn_offset;
 		}
 
 	# Keep watching if there are potentially more thresholds.
-	if ( c$long_conn_offset < |check_it| )
-		return check_it[c$long_conn_offset];
+	if ( c$long_conn_offset < |check_it|-1 )
+		{
+		++c$long_conn_offset;
+
+		# Set next polling duration to be the time remaining
+		# between the actual duration and the threshold duration.
+		return (check_it[c$long_conn_offset] - c$duration);
+		}
+	else if ( repeat_last_duration )
+		{
+		# If repeating the final duration, don't subtract the duration
+		# of the connection.
+		return check_it[|check_it|-1];
+		}
 	else
+		{
+		# Negative return value here signals to stop polling
+		# on this particular connection.
 		return -1sec;
+		}
 	}
 
 event new_connection(c: connection)
