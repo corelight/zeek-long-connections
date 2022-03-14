@@ -39,6 +39,12 @@ export {
 	## durations than the default.
 	option special_cases: table[subnet] of Durations = {};
 
+	## Should the last duration be repeated or should the tracking end.
+	option repeat_last_duration: bool = F;
+
+	## Should a NOTICE be raised
+	option do_notice: bool = T;
+
 	## Event for other scripts to use
 	global long_conn_found: event(c: connection);
 }
@@ -75,16 +81,22 @@ function long_callback(c: connection, cnt: count): interval
 		Conn::set_conn_log_data_hack(c);
 		Log::write(LongConnection::LOG, c$conn);
 
-		local message = fmt("%s -> %s:%s remained alive for longer than %s", 
-		                    c$id$orig_h, c$id$resp_h, c$id$resp_p, duration_to_mins_secs(c$duration));
-		NOTICE([$note=LongConnection::found,
-		        $msg=message,
-		        $sub=fmt("%.2f", c$duration),
-		        $conn=c]);
+		if ( do_notice )
+			{
+			local message = fmt("%s -> %s:%s remained alive for longer than %s", 
+								c$id$orig_h, c$id$resp_h, c$id$resp_p, duration_to_mins_secs(c$duration));
+			NOTICE([$note=LongConnection::found,
+					$msg=message,
+					$sub=fmt("%.2f", c$duration),
+					$conn=c]);
+			}
 
 		event LongConnection::long_conn_found(c);
 		
-		++c$long_conn_offset;
+		# Only increment the duration offset if there are more offsets
+		# or we aren't repeating the last duration
+		if (c$long_conn_offset < |check_it|-1 || !repeat_last_duration)
+			++c$long_conn_offset;
 		}
 
 	# Keep watching if there are potentially more thresholds.
