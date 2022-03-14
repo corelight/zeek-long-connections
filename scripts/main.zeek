@@ -44,6 +44,9 @@ export {
 
 	## Should a NOTICE be raised
 	option do_notice: bool = T;
+
+	## Event for other scripts to use
+	global long_conn_found: event(c: connection);
 }
 
 redef record connection += {
@@ -87,6 +90,8 @@ function long_callback(c: connection, cnt: count): interval
 					$sub=fmt("%.2f", c$duration),
 					$conn=c]);
 			}
+
+		event LongConnection::long_conn_found(c);
 		
 		# Only increment the duration offset if there are more offsets
 		# or we aren't repeating the last duration
@@ -101,16 +106,7 @@ function long_callback(c: connection, cnt: count): interval
 		return -1sec;
 	}
 
-event connection_established(c: connection)
-	{
-	local check = get_durations(c);
-	if ( |check| > 0 )
-		{
-		ConnPolling::watch(c, long_callback, 1, check[0]);
-		}
-	}
-
-event partial_connection(c: connection)
+event new_connection(c: connection)
 	{
 	local check = get_durations(c);
 	if ( |check| > 0 )
