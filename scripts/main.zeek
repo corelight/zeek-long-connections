@@ -32,12 +32,15 @@ export {
 
 	## The default duration that you are locally 
 	## considering a connection to be "long".  
-	const default_durations = Durations(10min, 30min, 1hr, 12hr, 24hrs, 3days) &redef;
+	option default_durations = Durations(10min, 30min, 1hr, 12hr, 24hrs, 3days);
 
 	## These are special cases for particular hosts or subnets
 	## that you may want to watch for longer or shorter
 	## durations than the default.
-	const special_cases: table[subnet] of Durations = {} &redef;
+	option special_cases: table[subnet] of Durations = {};
+
+	## Event for other scripts to use
+	global long_conn_found: event(c: connection);
 }
 
 redef record connection += {
@@ -78,6 +81,8 @@ function long_callback(c: connection, cnt: count): interval
 		        $msg=message,
 		        $sub=fmt("%.2f", c$duration),
 		        $conn=c]);
+
+		event LongConnection::long_conn_found(c);
 		
 		++c$long_conn_offset;
 		}
