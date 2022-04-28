@@ -19,6 +19,8 @@ module LongConnection;
 export {
 	redef enum Log::ID += { LOG };
 
+	global log_policy: Log::PolicyHook;
+
 	redef enum Notice::Type += {
 		## Notice for when a long connection is found.
 		## The `sub` field in the notice represents the number
@@ -56,7 +58,7 @@ redef record connection += {
 
 event zeek_init() &priority=5
 	{
-	Log::create_stream(LOG, [$columns=Conn::Info, $path="conn_long"]);
+	Log::create_stream(LOG, [$columns=Conn::Info, $path="conn_long", $policy=log_policy]);
 	}
 
 function get_durations(c: connection): Durations
