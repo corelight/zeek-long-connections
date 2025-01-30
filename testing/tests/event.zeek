@@ -6,5 +6,5 @@ redef LongConnection::default_durations = LongConnection::Durations(1min, 3min, 
 
 event LongConnection::long_conn_found(c: connection)
     {
-    print c$id, c$duration;
+    print c$uid, c$duration;
     }
