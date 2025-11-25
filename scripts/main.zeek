@@ -22,9 +22,8 @@ export {
 	global log_policy: Log::PolicyHook;
 
 	redef enum Notice::Type += {
-		## Notice for when a long connection is found.
-		## The `sub` field in the notice represents the number
-		## of seconds the connection has currently been alive.
+		## Notice for when connection remained alive for longer than a
+		## specified duration.
 		LongConnection::found
 	};
 
@@ -44,7 +43,7 @@ export {
 	## Should the last duration be repeated or should the tracking end.
 	option repeat_last_duration: bool = F;
 
-	## Should a NOTICE be raised
+	## Turn on to enable the creation of LongConnection notices.
 	option do_notice: bool = T;
 
 	## Event for other scripts to use
